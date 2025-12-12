@@ -1,5 +1,5 @@
 {
-    'name': "Gestión De Restaurante",
+    'name': "rest_victor",
 
     'summary': "Modulo de prueba",
 

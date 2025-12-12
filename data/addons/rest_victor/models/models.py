@@ -2,7 +2,7 @@ from odoo import models, fields, api
 
 
 class platos_victor(models.Model):
-    _name = 'gestion_restaurante_victor.platos_victor'
+    _name = 'rest_victor.platos_victor'
     _description = 'Modelo de Platos para Gestión de Restaurante'
 
     nombre = fields.Char()
