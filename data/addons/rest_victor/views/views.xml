@@ -7,8 +7,13 @@
       <field name="model">rest_victor.platos_victor</field>
       <field name="arch" type="xml">
         <list>
-          <field name="nombre"/>
+          <field name="name"/>
           <field name="descripcion"/>
+          <field name="precio"/>
+          <field name="tiempo_preparacion"/>
+          <field name="disponible"/>
+          <field name="categoria"/>
+          <field name="rel_ingredientes" widget="many2many_tags"/>
         </list>
       </field>
     </record>
@@ -16,9 +21,21 @@
 
     <!-- actions opening views on models -->
 
-    <record model="ir.actions.act_window" id="rest_victor.action_window">
-      <field name="name">rest_victor window</field>
+    <record model="ir.actions.act_window" id="rest_victor.action_platos_window">
+      <field name="name">Platos</field>
       <field name="res_model">rest_victor.platos_victor</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="rest_victor.action_menu_window">
+      <field name="name">Menú</field>
+      <field name="res_model">rest_victor.menu_victor</field>
+      <field name="view_mode">list,form</field>
+    </record>
+      
+    <record model="ir.actions.act_window" id="rest_victor.action_ingredientes_window">
+      <field name="name">Ingredientes</field>
+      <field name="res_model">rest_victor.ingredientes_victor</field>
       <field name="view_mode">list,form</field>
     </record>
 
@@ -42,16 +59,14 @@
     <!-- Top menu item -->
     <menuitem name="Gestión de Restaurante" id="rest_victor.menu_root"/>
     <!-- menu categories -->
-    <menuitem name="Menú" id="rest_victor.menu_1" parent="rest_victor.menu_root"/>
-<!--
-    <menuitem name="Menu 2" id="gestion_restaurante_victor.menu_2" parent="gestion_restaurante_victor.menu_root"/>
--->
+    <menuitem name="Listados" id="rest_victor.menu_1" parent="rest_victor.menu_root"/>
     <!-- actions -->
     <menuitem name="Platos" id="rest_victor.menu_1_list" parent="rest_victor.menu_1"
-              action="rest_victor.action_window"/>
-<!--
-    <menuitem name="Server to list" id="gestion_restaurante_victor" parent="gestion_restaurante_victor.menu_2"
-              action="gestion_restaurante_victor.action_server"/>
--->
+              action="rest_victor.action_platos_window"/>
+    <menuitem name="Menús" id="rest_victor.menu_2_list" parent="rest_victor.menu_1"
+              action="rest_victor.action_menu_window"/>
+    <menuitem name="Ingredientes" id="rest_victor.menu_3_list" parent="rest_victor.menu_1"
+              action="rest_victor.action_ingredientes_window"/>
+
   </data>
 </odoo>
