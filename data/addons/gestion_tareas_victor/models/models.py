@@ -1,9 +1,15 @@
+from datetime import timedelta
 from odoo import models, fields, api
 
 
 class tareas_victor(models.Model):
     _name = 'gestion_tareas_victor.tareas_victor'
     _description = 'gestion_tareas_victor.tareas_victor'
+
+    codigo = fields.Char(
+        compute="_get_codigo",
+        string="Codigo"
+        )
 
     nombre = fields.Char(
         string="Nombre", 
@@ -22,7 +28,7 @@ class tareas_victor(models.Model):
         string="Fecha Inicio", 
         required=True, 
         help="Fecha y hora de inicio de la tarea")
-
+    
     fecha_fin = fields.Datetime(
         string="Fecha Final", 
         help="Fecha y hora de finalización de la tarea")
@@ -44,6 +50,18 @@ class tareas_victor(models.Model):
         column2='rel_tecnologias',
         string='Tecnologías')
     
+    def _get_codigo(self):
+        for tarea in self:
+            # Si la tarea no tiene un sprint asignado
+            if not tarea.sprint:
+                tarea.codigo = "TSK_" + str(tarea.id)
+            else:
+             # Si tiene sprint, usamos su nombre
+                tarea.codigo = str(tarea.sprint.name).upper() + "_" + str(tarea.id)
+
+   
+    
+    
 class sprints_victor(models.Model):
     _name = 'gestion_tareas_victor.sprints_victor'
     _description = 'Modelo de Sprints para Gestión de Proyectos'
@@ -61,15 +79,29 @@ class sprints_victor(models.Model):
         string="Fecha Inicio", 
         required=True, 
         help="Fecha y hora de inicio del sprint")
+      
+    duracion = fields.Integer(
+       string="Duración", 
+        help="Cantidad de días que tiene asignado el sprint")
 
     fecha_fin = fields.Datetime(
-        string="Fecha Final", 
-        help="Fecha y hora de finalización del sprint")
+        compute='_compute_fecha_fin', 
+        store=True,
+        string="Fecha Fin")
+        
 
     tareas = fields.One2many(
     'gestion_tareas_victor.tareas_victor', 
     'sprint',
     string='Tareas del Sprint')
+
+    @api.depends('fecha_ini', 'duracion')
+    def _compute_fecha_fin(self):
+        for sprint in self:
+            if sprint.fecha_ini and sprint.duracion and sprint.duracion > 0:
+                sprint.fecha_fin = sprint.fecha_ini + timedelta(days=sprint.duracion)
+            else:
+                sprint.fecha_fin = sprint.fecha_ini
 
 class tecnologias_victor(models.Model):
     _name = 'gestion_tareas_victor.tecnologias_victor'

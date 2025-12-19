@@ -24,41 +24,18 @@ if ! docker ps --format '{{.Names}}' | grep -q "^${PG_CONTAINER}$"; then
   docker-compose up -d "$PG_CONTAINER"
 fi
 
-
 echo "==> Creando backup lógico (SQL plano) de la BD '${DB_NAME}'..."
 # El dump se genera dentro del contenedor y se escribe en el bind mount /backups => ./data/backups del host
-docker exec "${PG_CONTAINER}" bash -lc "pg_dump -U '${PG_USER}' -d '${DB_NAME}' > '/backups/${DB_NAME}.sql'"
-
-# Opcional: sincronizar permisos en el host (por si el archivo queda con UID/GID del contenedor)
-# sudo chmod 600 "${BACKUP_SQL}" || true
-
+docker exec "${PG_CONTAINER}" bash -lc "pg_dump -U '${PG_USER}' -d '${DB_NAME}' --no-owner --no-privileges > '/backups/${DB_NAME}.sql'"
+echo "==> Creando backup lógico (SQL plano)..."
 echo "Backup completado: ${BACKUP_SQL}"
+
+# Comprimimos el contenido de la carpeta filestore
+echo "==> Empaquetando Filestore ..."
+tar -czf "${BACKUP_DIR}/filestore.tar.gz" -C ./data/odoo/filestore .
+echo "==> Filestore empaquetado..."
 
 echo "==> Arrancando Odoo de nuevo..."
 docker compose start ${ODOO_CONTAINER}
 
-exit
-
-# 7. Añadir archivos al staging
-echo "-> Añadiendo el nuevo paquete de datos y código a Git..."
-sudo git add .
-
-# 8. Realizar el commit
-FECHA_BACKUP=$(date +"%Y-%m-%d %H:%M:%S")
-echo "-> Creando commit..."
-git commit -m "BACKUP AUTOMÁTICO - Datos (Volumen Nombrado) y código actualizados al $FECHA_BACKUP"
-
-# 9. Subir a GitHub
-echo "-> Subiendo a GitHub (rama main)..."
-
-git push 
-
-if [ $? -eq 0 ]; then
-    echo "======================================================="
-    echo " ¡ÉXITO! COPIA DE SEGURIDAD Y SUBIDA COMPLETADAS."
-    echo "======================================================="
-else
-    echo "======================================================="
-    echo " ERROR: FALLÓ LA SUBIDA A GITHUB."
-    echo "======================================================="
-fi
+echo "FIN"

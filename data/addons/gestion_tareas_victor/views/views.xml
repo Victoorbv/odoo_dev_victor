@@ -7,9 +7,10 @@
       <field name="model">gestion_tareas_victor.tareas_victor</field>
       <field name="arch" type="xml">
         <list>
+          <field name="codigo"/>
           <field name="nombre"/>
           <field name="descripcion"/>
-           <field name="finalizado"/>
+          <field name="finalizado"/> 
         </list>
       </field>
     </record>
@@ -22,6 +23,7 @@
         <form>
         <sheet>
           <group>
+          <field name="codigo"/>
           <field name="nombre"/>
           <field name="descripcion"/>
            <field name="finalizado"/>

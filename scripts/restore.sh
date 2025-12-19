@@ -47,8 +47,24 @@ docker exec "${PG_CONTAINER}" bash -lc "createdb -U '${PG_USER}' '${DB_NAME}'"
 # 6) Restaurar datos
 echo "==> Restaurando datos desde ${BACKUP_SQL}..."
 # Borra exactamente las líneas de meta-comandos (con token alfanumérico)
-sed -E '/^\\restrict [A-Za-z0-9]+$/d;/^\\unrestrict [A-Za-z0-9]+$/d'  "${BACKUP_SQL}" > "${BACKUP_SQL%.sql}.clean.sql"
-docker exec -i "${PG_CONTAINER}" psql -U "${PG_USER}" -d "${DB_NAME}" -v ON_ERROR_STOP=on \ < "${BACKUP_SQL%.sql}.clean.sql"
+# sed -E '/^\\restrict [A-Za-z0-9]+$/d;/^\\unrestrict [A-Za-z0-9]+$/d'  "${BACKUP_SQL}" > "${BACKUP_SQL%.sql}.clean.sql"
+docker exec -i "${PG_CONTAINER}" psql -U "${PG_USER}" -d "${DB_NAME}" -v ON_ERROR_STOP=on \ < "${BACKUP_SQL}"
+
+
+# --- 6.5) Restaurar Filestore y Limpiar Assets ---
+if [[ -f "${BACKUP_DIR}/filestore.tar.gz" ]]; then
+    echo "==> Restaurando archivos físicos (Filestore)..."
+    mkdir -p ./data/odoo/filestore
+    tar -xzf "${BACKUP_DIR}/filestore.tar.gz" -C ./data/odoo/filestore
+else
+    echo "WARNING: No se encontró filestore.tar.gz. Se regenerará al iniciar."
+fi
+
+echo "==> Limpiando referencias a assets antiguos en SQL..."
+# Esto es vital: elimina los punteros a archivos CSS/JS que el alumno generó en su PC
+docker exec "${PG_CONTAINER}" psql -U "${PG_USER}" -d "${DB_NAME}" \
+    -c "DELETE FROM ir_attachment WHERE url LIKE '/web/assets/%';"
+
 echo "Restauración completada."
 
 # 7) Espera fija antes de arrancar Odoo
