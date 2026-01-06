@@ -2,18 +2,34 @@
   <data>
     <!-- explicit list view definition -->
 
-    <record model="ir.ui.view" id="rest_victor.list">
+    <record model="ir.ui.view" id="rest_victor.list_platos">
       <field name="name">rest_victor list</field>
       <field name="model">rest_victor.platos_victor</field>
       <field name="arch" type="xml">
         <list>
+          <field name="codigo"/>
           <field name="name"/>
           <field name="descripcion"/>
           <field name="precio"/>
+          <field name="precio_con_iva"/>
+          <field name="precio_final"/>
           <field name="tiempo_preparacion"/>
           <field name="disponible"/>
           <field name="categoria"/>
           <field name="rel_ingredientes" widget="many2many_tags"/>
+        </list>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="rest_victor.list_menus">
+      <field name="name">rest_victor list</field>
+      <field name="model">rest_victor.menu_victor</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="descripcion"/>
+          <field name="precio_total"/>
+          <field name="platos" widget="many2many_tags"/>
         </list>
       </field>
     </record>

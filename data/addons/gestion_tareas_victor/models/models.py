@@ -7,10 +7,9 @@ class tareas_victor(models.Model):
     _description = 'gestion_tareas_victor.tareas_victor'
 
     codigo = fields.Char(
-        compute="_get_codigo",
-        string="Codigo"
-        )
-
+       compute="_get_codigo",
+    )
+    
     nombre = fields.Char(
         string="Nombre", 
         required=True, 
