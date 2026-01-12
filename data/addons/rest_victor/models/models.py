@@ -1,6 +1,12 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError, UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
+# Modelo platos ********************************************************************
+# **********************************************************************************
 class platos_victor(models.Model):
     _name = 'rest_victor.platos_victor'
     _description = 'Modelo de Platos para Gestión de Restaurante'
@@ -77,15 +83,25 @@ class platos_victor(models.Model):
         column2='rel_ingredientes',
         string='Ingredientes'
     )
+    # Depends ************************************************************
+    #**********************************************************************
     @api.depends('categoria')
     def _get_codigo(self):
         for plato in self:
-            # Si la tarea no tiene categoria asignada
-            if not plato.categoria:
-                plato.codigo = "PLT_" + str(plato.id)
-            else:
-                # Si tiene categoria, usamos su nombre
-                plato.codigo = plato.categoria[:3].upper() + "_" + str(plato.id)
+            try:
+                # Si la tarea no tiene categoria asignada
+                if not plato.categoria:
+                    plato.codigo = "PLT_" + str(plato.id)
+                    _logger.warning(f"Plato {plato.id} sin categoría asignada")
+                else:
+                    # Si tiene categoria, usamos su nombre
+                    plato.codigo = plato.categoria[:3].upper() + "_" + str(plato.id)
+                _logger.debug(f"Código generado: {plato.codigo}")
+            except Exception as e:
+                _logger.error(f"Error generando código para plato {plato.id}: {str(e)}")
+                raise ValidationError(f"Error al generar el código: {str(e)}")
+
+
     @api.depends('precio')
     def _compute_precio_con_iva(self):
         for plato in self:
@@ -104,9 +120,32 @@ class platos_victor(models.Model):
                 plato.precio_final = plato.precio * (1 - descuento_decimal)
             else:
                 plato.precio_final = plato.precio
-    
+    #Constrains ***********************************************************
+    #**********************************************************************
+    @api.constrains('precio')
+    def _verificar_precio(self):
+        for plato in self:
+            if plato.precio < 0:
+                _logger.error(f"Precio inválido para el plato {plato.id}: {plato.precio}")
+                raise ValidationError("El precio no puede ser inferior a 0")
+            else:
+                _logger.info(f"Precio válido para el plato {plato.id}: {plato.precio}")
+            
+    @api.constrains('tiempo_preparacion')
+    def _verificar_tiempo_preparacion(self):
+        for plato in self:
+            if plato.tiempo_preparacion:
+                if plato.tiempo_preparacion < 1:
+                    _logger.error(f"Tiempo de preparación inválido para el plato {plato.id}: {plato.tiempo_preparacion}")
+                    raise ValidationError("El tiempo de preparación no puede ser menor 1")
+                if plato.tiempo_preparacion > 240:
+                    _logger.error(f"Tiempo de preparación inválido para el plato {plato.id}: {plato.tiempo_preparacion}")
+                    raise ValidationError("El tiempo de preparación no puede ser mayor 240")
+            
 
 
+# Modelo menu ********************************************************************
+# **********************************************************************************
 class menu_victor(models.Model):
     _name = 'rest_victor.menu_victor'
     _description = 'Modelo de Platos para Gestión de Restaurante'
@@ -149,6 +188,8 @@ class menu_victor(models.Model):
         store=True
     )
 
+    # Depends ************************************************************
+    #**********************************************************************
     @api.depends('platos','platos.precio_final')
     def _compute_precio_total(self):
         for menu in self:
@@ -156,10 +197,29 @@ class menu_victor(models.Model):
         # La función map() extrae los valores y sum() los agrega.
             precios = menu.platos.mapped('precio_final')
             menu.precio_total = sum(precios)
+    #Constrains ***********************************************************
+    #**********************************************************************
+    @api.constrains('fecha_inicio','fecha_ini')
+    def _comprobar_fecha(self):
+        for menu in self:
+            if menu.fecha_fin:
+                if menu.fecha_inicio > menu.fecha_fin:
+                    _logger.error(f"Fechas inválidas para el menú {menu.id}: inicio {menu.fecha_inicio}, fin {menu.fecha_fin}")
+                    raise ValidationError("La fecha de inicio no puede ser posterior a la de fin")
+    
+    @api.constrains('platos','activo')
+    def _comprobar_platos_activo(self):
+        for menu in self:
+            if len(menu.platos) == 0 and menu.activo:
+                _logger.error(f"Menú activo sin platos para el menú {menu.id}")
+                raise ValidationError("Un menú activo debe tener al menos un plato asignado")
+
     
     
    
 
+# Modelo ingredientes ********************************************************************
+# **********************************************************************************
 class ingredientes_victor(models.Model):
     _name = 'rest_victor.ingredientes_victor'
     _description = 'Modelo de Ingredientes para Gestión de Restaurante'

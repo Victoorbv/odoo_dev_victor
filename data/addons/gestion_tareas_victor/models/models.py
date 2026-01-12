@@ -1,7 +1,12 @@
 from datetime import timedelta
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError, UserError
+import logging
 
+_logger = logging.getLogger(__name__)
 
+# Modelo tareas ********************************************************************
+# **********************************************************************************
 class tareas_victor(models.Model):
     _name = 'gestion_tareas_victor.tareas_victor'
     _description = 'gestion_tareas_victor.tareas_victor'
@@ -48,19 +53,26 @@ class tareas_victor(models.Model):
         column1='rel_tareas',
         column2='rel_tecnologias',
         string='Tecnologías')
-    
+            
     def _get_codigo(self):
+        _logger.info("Iniciando generación de códigos de tareas")
         for tarea in self:
-            # Si la tarea no tiene un sprint asignado
-            if not tarea.sprint:
-                tarea.codigo = "TSK_" + str(tarea.id)
-            else:
-             # Si tiene sprint, usamos su nombre
-                tarea.codigo = str(tarea.sprint.name).upper() + "_" + str(tarea.id)
+            try:
+                if tarea.sprint:
+                    tarea.codigo = str(tarea.sprint.name).upper() + "_" + str(tarea.id)
+                    _logger.debug(f"Código generado: {tarea.codigo}")
+                else:
+                    _logger.warning(f"Tarea {tarea.id} sin sprint asignado")
+                    tarea.codigo = "SIN_SPRINT_" + str(tarea.id)
+
+            except Exception as e:
+                _logger.error(f"Error generando código para tarea {tarea.id}: {str(e)}")
+                raise ValidationError(f"Error al generar el código: {str(e)}")
 
    
     
-    
+# Modelo sprints ********************************************************************
+# **********************************************************************************
 class sprints_victor(models.Model):
     _name = 'gestion_tareas_victor.sprints_victor'
     _description = 'Modelo de Sprints para Gestión de Proyectos'
@@ -94,14 +106,29 @@ class sprints_victor(models.Model):
     'sprint',
     string='Tareas del Sprint')
 
+    # DEPENDS ******************************************************************************
     @api.depends('fecha_ini', 'duracion')
     def _compute_fecha_fin(self):
         for sprint in self:
-            if sprint.fecha_ini and sprint.duracion and sprint.duracion > 0:
-                sprint.fecha_fin = sprint.fecha_ini + timedelta(days=sprint.duracion)
-            else:
-                sprint.fecha_fin = sprint.fecha_ini
+            try:
+                if sprint.fecha_ini and sprint.duracion and sprint.duracion > 0:
+                    sprint.fecha_fin = sprint.fecha_ini + timedelta(days=sprint.duracion)
+                else:
+                    sprint.fecha_fin = sprint.fecha_ini
+            except Exception as e:
+                raise ValidationError(f"Error al calcular la fecha de fin: {str(e)}")
 
+    # CONSTRAINS ******************************************************************************
+    @api.constrains('fecha_ini', 'fecha_fin')
+    def _check_fechas(self):
+        for sprint in self:
+            if sprint.fecha_fin and sprint.fecha_ini:
+                if sprint.fecha_fin < sprint.fecha_ini:
+                    raise ValidationError("La fecha de fin no puede ser anterior a la fecha de inicio.")
+      
+
+# Modelo tecnologías ********************************************************************
+# ***************************************************************************************
 class tecnologias_victor(models.Model):
     _name = 'gestion_tareas_victor.tecnologias_victor'
     _description = 'Modelo de Tecnologías'
