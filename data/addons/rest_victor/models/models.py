@@ -57,16 +57,12 @@ class platos_victor(models.Model):
         help="Indica si el plato está disponible para ordenar"
     )
 
-    categoria = fields.Selection(
-        string="Categoría",
+    categoria_id = fields.Many2one(
+        'rest_victor.categoria_victor',
+        string='Categoría',
         required=False,
-        selection=[
-            ('entrante', 'Entrante'),
-            ('principal', 'Principal'),
-            ('postre', 'Postre'),
-            ('bebida', 'Bebida')
-        ],
-        help="Categoría del plato"
+        ondelete='cascade',
+        help='Categoría del plato'
     )
 
     menu = fields.Many2one(
@@ -77,25 +73,61 @@ class platos_victor(models.Model):
     )
 
     rel_ingredientes = fields.Many2many(
-        comodel_name='rest_victor.ingredientes_victor',
+        comodel_name='rest_victor.ingredients_victor',
         relation='relacion_platos_ingredientes',
         column1='rel_platos',
         column2='rel_ingredientes',
-        string='Ingredientes'
+        string='Ingredientes',
+        ondelete='cascade'
     )
+    chef = fields.Many2one(
+        'rest_victor.chef_victor',
+        string='Chef relacionado', 
+        ondelete='set null', 
+        help='Chef al que pertenece este plato'
+    )
+
+    chef_especializado = fields.Many2one(
+        'rest_victor.chef_victor',
+        string='Chef Especializado', 
+        compute='_compute_chef_especializado',
+        store=True,
+        help='Chef especializado en la categoría del plato'
+    )
+
+    especialidad_chef = fields.Many2one(
+        'rest_victor.categoria_victor',
+        string='Especialidad del Chef',
+        related='chef.especialidad',
+        readonly=True,
+        help='Categoría de especialidad del chef asignado al plato'
+    )
+
+ 
     # Depends ************************************************************
     #**********************************************************************
-    @api.depends('categoria')
+    @api.depends('categoria_id')
+    def _compute_chef_especializado(self):
+        for plato in self:
+            if plato.categoria_id:
+                plato.chef_especializado = self.env['rest_victor.chef_victor'].search(
+                    [('especialidad', '=', plato.categoria_id.id)], 
+                    limit=1
+                )
+            else:
+                plato.chef_especializado = False
+
+    @api.depends('categoria_id')
     def _get_codigo(self):
         for plato in self:
             try:
                 # Si la tarea no tiene categoria asignada
-                if not plato.categoria:
+                if not plato.categoria_id:
                     plato.codigo = "PLT_" + str(plato.id)
                     _logger.warning(f"Plato {plato.id} sin categoría asignada")
                 else:
                     # Si tiene categoria, usamos su nombre
-                    plato.codigo = plato.categoria[:3].upper() + "_" + str(plato.id)
+                    plato.codigo = plato.categoria_id.name[:3].upper() + "_" + str(plato.id)
                 _logger.debug(f"Código generado: {plato.codigo}")
             except Exception as e:
                 _logger.error(f"Error generando código para plato {plato.id}: {str(e)}")
@@ -120,6 +152,7 @@ class platos_victor(models.Model):
                 plato.precio_final = plato.precio * (1 - descuento_decimal)
             else:
                 plato.precio_final = plato.precio
+
     #Constrains ***********************************************************
     #**********************************************************************
     @api.constrains('precio')
@@ -199,7 +232,7 @@ class menu_victor(models.Model):
             menu.precio_total = sum(precios)
     #Constrains ***********************************************************
     #**********************************************************************
-    @api.constrains('fecha_inicio','fecha_ini')
+    @api.constrains('fecha_inicio','fecha_fin')
     def _comprobar_fecha(self):
         for menu in self:
             if menu.fecha_fin:
@@ -220,8 +253,8 @@ class menu_victor(models.Model):
 
 # Modelo ingredientes ********************************************************************
 # **********************************************************************************
-class ingredientes_victor(models.Model):
-    _name = 'rest_victor.ingredientes_victor'
+class ingredients_victor(models.Model):
+    _name = 'rest_victor.ingredients_victor'
     _description = 'Modelo de Ingredientes para Gestión de Restaurante'
 
     name = fields.Char(
@@ -247,4 +280,77 @@ class ingredientes_victor(models.Model):
         column1='rel_ingredientes',
         column2='rel_platos',
         string='Platos'
+    )
+
+#Modelo Categoria************************************************************
+#**************************************************************************
+class categoria_victor(models.Model):
+    _name = 'rest_victor.categoria_victor'
+    _description = 'Modelo de Categorías para Gestión de Restaurante'
+
+    name = fields.Char(
+        string = " Nombre de la Categoría",
+        required = True,
+        help = "Nombre de la categoría"
+    )
+
+    descripcion = fields.Text(
+        string = "Descripción de la Categoría",
+        required = False,
+        help = "Descripción detallada de la categoría"
+    )
+
+    platos = fields.One2many(
+        'rest_victor.platos_victor',
+        'categoria_id',
+        string='Platos de la Categoría',
+    )
+
+    ingredientes_comunes = fields.Many2many(
+        'rest_victor.ingredients_victor',
+        string='Ingredientes Comunes', 
+        compute='_compute_ingredientes_comunes',
+        store=True,
+        help='Ingredientes comunes de todos los platos de la categoría'
+    )
+
+    #Depends *******************************************************************
+    #***************************************************************************
+    @api.depends('platos', 'platos.rel_ingredientes')
+    def _compute_ingredientes_comunes(self):
+        for categoria in self:
+            # Inicializa recordset vacío de ingredientes
+            ingredientes = self.env['rest_victor.ingredients_victor']
+            # Itera sobre todos los platos de la categoría
+            for plato in categoria.platos:
+                # Acumula los ingredientes de cada plato
+                ingredientes = ingredientes + plato.rel_ingredientes
+            # Asigna el conjunto de ingredientes acumulados
+            categoria.ingredientes_comunes = ingredientes
+            
+
+#Modelo Chef********************************************************************
+#**************************************************************************
+class chef_victor(models.Model):
+    _name = 'rest_victor.chef_victor'
+    _description = 'Modelo de Chef para Gestión de Restaurante'
+
+    name = fields.Char(
+        string = " Nombre de el Chef",
+        required = True,
+        help = "Nombre de el chef"
+    )
+
+    especialidad = fields.Many2one(
+        'rest_victor.categoria_victor',
+        string='Categoría',
+        required=False,
+        ondelete='cascade',
+        help='Categoría del plato'
+    )
+
+    platos_asignados = fields.One2many(
+        'rest_victor.platos_victor',
+        'chef',
+        string='Platos Asignados',
     )

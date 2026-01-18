@@ -1,4 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_rest_victor_platos_victor,rest_victor.platos_victor,model_rest_victor_platos_victor,base.group_user,1,1,1,1
 access_rest_victor_menu_victor,rest_victor.menu_victor,model_rest_victor_menu_victor,base.group_user,1,1,1,1
-access_rest_victor_ingredientes_victor,rest_victor.ingredientes_victor,model_rest_victor_ingredientes_victor,base.group_user,1,1,1,1
+access_rest_victor_ingredients_victor,rest_victor.ingredients_victor,model_rest_victor_ingredients_victor,base.group_user,1,1,1,1
+access_rest_victor_categoria_victor,rest_victor.categoria_victor,model_rest_victor_categoria_victor,base.group_user,1,1,1,1
+access_rest_victor_chef_victor,rest_victor.chef_victor,model_rest_victor_chef_victor,base.group_user,1,1,1,1

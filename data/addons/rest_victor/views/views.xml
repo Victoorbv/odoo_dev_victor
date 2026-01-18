@@ -15,8 +15,9 @@
           <field name="precio_final"/>
           <field name="tiempo_preparacion"/>
           <field name="disponible"/>
-          <field name="categoria"/>
+          <field name="categoria_id"/>
           <field name="rel_ingredientes" widget="many2many_tags"/>
+          <field name="chef"/>
         </list>
       </field>
     </record>
@@ -30,6 +31,7 @@
           <field name="descripcion"/>
           <field name="precio_total"/>
           <field name="platos" widget="many2many_tags"/>
+        
         </list>
       </field>
     </record>
@@ -51,9 +53,22 @@
       
     <record model="ir.actions.act_window" id="rest_victor.action_ingredientes_window">
       <field name="name">Ingredientes</field>
-      <field name="res_model">rest_victor.ingredientes_victor</field>
+      <field name="res_model">rest_victor.ingredients_victor</field>
       <field name="view_mode">list,form</field>
     </record>
+
+    <record model="ir.actions.act_window" id="rest_victor.action_categorias_window">
+      <field name="name">Categorías</field>
+      <field name="res_model">rest_victor.categoria_victor</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="rest_victor.action_chef_window">
+      <field name="name">Chefs</field>
+      <field name="res_model">rest_victor.chef_victor</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
 
 
     <!-- server action to the one above -->
@@ -83,6 +98,10 @@
               action="rest_victor.action_menu_window"/>
     <menuitem name="Ingredientes" id="rest_victor.menu_3_list" parent="rest_victor.menu_1"
               action="rest_victor.action_ingredientes_window"/>
+    <menuitem name="Categorías" id="rest_victor.menu_4_list" parent="rest_victor.menu_1"
+              action="rest_victor.action_categorias_window"/>
+    <menuitem name="Chefs" id="rest_victor.menu_5_list" parent="rest_victor.menu_1"
+              action="rest_victor.action_chef_window"/>
 
   </data>
 </odoo>
