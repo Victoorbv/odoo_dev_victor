@@ -27,11 +27,13 @@
           <field name="codigo"/>
           <field name="nombre"/>
           <field name="descripcion"/>
-          <field name="finalizado"/>
           <field name="proyecto_ids"/>
+          <field name="proyecto_default"/>
+          <field name="finalizado"/>
           <field name="historia"/>
            </group>
            <group>
+            <field name="responsable"/>
             <field name="fecha_creacion"/>
             <field name="fecha_ini"/>
             <field name="fecha_fin"/>

@@ -23,6 +23,11 @@ class proyectos_victor(models.Model):
     'proyecto',
     string='Historias de usuario del proyecto')
 
+    activo = fields.Boolean(
+        string="Activo",
+        help="Indica si el proyecto está activo o no"
+        )
+
 # HISTORIAS DE USUARIO *************************************************************
 class historias_victor(models.Model):
     _name = 'gestion_tareas_victor.historias_victor'
@@ -88,9 +93,14 @@ class tareas_victor(models.Model):
     descripcion = fields.Text(
         string="Descripción", 
         help="Breve descripción de la tarea")
+    # FECHA CREACIÓN
+    #def _get_fecha_actual(self):
+    #    return datetime.now()
+
     fecha_creacion = fields.Date(
         string="Fecha Creación", 
         required=True, 
+        default=lambda self: datetime.now(),
         help="Fecha en la que se dio de alta la tarea")
 
     fecha_ini = fields.Datetime(
@@ -125,11 +135,30 @@ class tareas_victor(models.Model):
         ondelete='set null', 
         help='Historias de usuario de la tarea')
     
+    
     proyecto_ids = fields.Many2one(
         'gestion_tareas_victor.proyectos_victor',
         string='Proyecto',
         related='historia.proyecto',
         readonly=True)
+    
+    # PROYECTO POR DEFECTO
+    def _get_proyecto_activo(self):
+        return self.env['gestion_tareas_victor.proyectos_victor'].search(
+            [('activo', '=', True)], 
+            limit=1, order='create_date desc')
+
+
+    proyecto_default = fields.Many2one(
+        'gestion_tareas_victor.proyectos_victor',
+        string='Proyecto por defecto',
+        default=_get_proyecto_activo)
+    
+    responsable = fields.Many2one(
+        'res.users',
+        string="Responsable",
+        default=lambda self: self.env.user.id
+    )
     
     
     #DEPENDS ******************************************************************************
@@ -200,7 +229,8 @@ class sprints_victor(models.Model):
         help="Fecha y hora de inicio del sprint")
       
     duracion = fields.Integer(
-       string="Duración", 
+        string="Duración", 
+        default=14,
         help="Cantidad de días que tiene asignado el sprint")
 
     fecha_fin = fields.Datetime(

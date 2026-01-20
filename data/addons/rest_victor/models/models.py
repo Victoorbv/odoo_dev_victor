@@ -1,3 +1,4 @@
+from datetime import timedelta
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError, UserError
 import logging
@@ -20,6 +21,7 @@ class platos_victor(models.Model):
         required = True,
         help = "Nombre descripción del plato"
     )
+    
     descripcion = fields.Text(
         string = "Descripción del Plato",
         required = False,
@@ -29,6 +31,7 @@ class platos_victor(models.Model):
     precio = fields.Float(
         string = "Precio del Plato",
         required = True,
+        default = 5.0,
         help = "Precio del plato en euros"
     )
 
@@ -37,7 +40,9 @@ class platos_victor(models.Model):
     )
 
     descuento = fields.Float(
-        string = "Descuento (%)"
+        string = "Descuento (%)",
+        default = 0.0,
+        help = "Descuento aplicado al plato en porcentaje"
     )
 
     precio_final = fields.Float(
@@ -57,11 +62,15 @@ class platos_victor(models.Model):
         help="Indica si el plato está disponible para ordenar"
     )
 
+    def _get_categoria_defecto(self):
+        return self.env['rest_victor.categoria_victor'].search([('name', '=', 'Sin Clasificar')], limit=1)
+        
     categoria_id = fields.Many2one(
         'rest_victor.categoria_victor',
         string='Categoría',
         required=False,
         ondelete='cascade',
+        default=_get_categoria_defecto,
         help='Categoría del plato'
     )
 
@@ -80,6 +89,7 @@ class platos_victor(models.Model):
         string='Ingredientes',
         ondelete='cascade'
     )
+
     chef = fields.Many2one(
         'rest_victor.chef_victor',
         string='Chef relacionado', 
@@ -103,7 +113,12 @@ class platos_victor(models.Model):
         help='Categoría de especialidad del chef asignado al plato'
     )
 
- 
+    fecha_alta  = fields.Date(
+        string="Fecha de Alta",
+        default=lambda self: fields.Date.today(),
+        help="Fecha en que el plato fue dado de alta"
+    )
+
     # Depends ************************************************************
     #**********************************************************************
     @api.depends('categoria_id')
@@ -188,26 +203,35 @@ class menu_victor(models.Model):
         required = True,
         help = "Nombre del menú"
     )
+
     descripcion = fields.Text(
         string = "Descripción del Menú",
         required = False,
         help = "Descripción detallada del menú"
     )
+
     fecha_inicio = fields.Date(
         string="Fecha de Inicio",
         required=True,
         help="Fecha de inicio de la validez del menú"
     )
 
+    dias_disponibles = fields.Integer(
+        string="Días Disponibles",
+        default=7,
+        help="Número de días que el menú estará disponible"
+    )
+
     fecha_fin = fields.Date(
         string="Fecha de Fin",
-        required=False,
+        compute="_generar_fecha_fin",
         help="Fecha de fin de la validez del menú"
+        
     )
 
     activo = fields.Boolean(
         string="Activo",
-        default=True,
+        default=False,
         help="Indica si el menú está activo"
     )
 
@@ -216,9 +240,18 @@ class menu_victor(models.Model):
         'menu',
         string='Platos del Menú',    
     )
+
     precio_total = fields.Float(
         compute="_compute_precio_total",
         store=True
+    )
+    
+    creado_por = fields.Many2one(
+        'res.users',
+        string='Creado por',
+        default=lambda self: self.env.user,
+        readonly=True,
+        help='Usuario que creó el menú'
     )
 
     # Depends ************************************************************
@@ -230,6 +263,14 @@ class menu_victor(models.Model):
         # La función map() extrae los valores y sum() los agrega.
             precios = menu.platos.mapped('precio_final')
             menu.precio_total = sum(precios)
+
+    @api.depends('fecha_inicio','dias_disponibles')
+    def _generar_fecha_fin(self):
+        for menu in self:
+            if menu.fecha_inicio and menu.dias_disponibles:
+                menu.fecha_fin = menu.fecha_inicio + timedelta(days=menu.dias_disponibles)
+            else:
+                menu.fecha_fin = False
     #Constrains ***********************************************************
     #**********************************************************************
     @api.constrains('fecha_inicio','fecha_fin')
@@ -246,10 +287,6 @@ class menu_victor(models.Model):
             if len(menu.platos) == 0 and menu.activo:
                 _logger.error(f"Menú activo sin platos para el menú {menu.id}")
                 raise ValidationError("Un menú activo debe tener al menos un plato asignado")
-
-    
-    
-   
 
 # Modelo ingredientes ********************************************************************
 # **********************************************************************************
