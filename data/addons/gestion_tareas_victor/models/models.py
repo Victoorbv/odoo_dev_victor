@@ -300,4 +300,27 @@ class tecnologias_victor(models.Model):
         column2='rel_tareas',
         string='Tareas')
     
+    desarrolladores_ids = fields.Many2many(
+        comodel_name='res.partner',
+        relation='rel_dev_tec',
+        column1='tecnologia_id',
+        column2='desarrollador_id',
+        string = 'Desarrolladores que la dominan'
+    )
     
+class desarrolladores_victor(models.Model):
+    _name = 'res.partner'
+    _inherit = 'res.partner'
+
+    es_desarrollador = fields.Boolean(
+        string="Es Desarrollador"
+    )
+
+    tecnologias_ids = fields.Many2many(
+        comodel_name = 'gestion_tareas_victor.tecnologias_victor',
+        relation='rel_dev_tec',
+        column1='desarrollador_id',
+        column2='tecnologia_id',
+         string = 'Tecnologías Dominadas'
+
+    )
