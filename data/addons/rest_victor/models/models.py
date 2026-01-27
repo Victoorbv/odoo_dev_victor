@@ -254,6 +254,14 @@ class menu_victor(models.Model):
         help='Usuario que creó el menú'
     )
 
+    camareros_ids = fields.Many2many(
+        comodel_name='res.partner',
+        relation='rel_cam_men',
+        column1='menu_id',
+        column2='camarero_id',
+        string='Camareros Asignados'
+    )
+
     # Depends ************************************************************
     #**********************************************************************
     @api.depends('platos','platos.precio_final')
@@ -391,3 +399,49 @@ class chef_victor(models.Model):
         'chef',
         string='Platos Asignados',
     )
+
+# Modelo Camarero ********************************************************************
+# **********************************************************************************
+class camarero_victor(models.Model):
+    _name = 'res.partner'
+    _inherit = 'res.partner'
+
+    es_camarero = fields.Boolean(
+        string = "Es Camarero"
+    )
+
+    turno = fields.Selection(
+        string="Turno",
+        selection=[
+            ('manana', 'Mañana'),
+            ('tarde', 'Tarde'),
+            ('noche', 'Noche')],
+        default='manana'        
+    )
+
+    seccion = fields.Char(
+        string="Sección Asignada"
+    )
+
+    menus_especialidad = fields.Many2many(
+        comodel_name='rest_victor.menu_victor',
+        relation='rel_cam_men',
+        column1='camarero_id',
+        column2='menu_id',
+        string='Menus de Especialidad',
+    )
+
+    @api.onchange('es_camarero')
+    def _onchange_es_camarero(self):
+        # Buscar la categoría "Camarero"
+        categorias = self.env['res.partner.category'].search([('name', '=', 'Camarero')])
+
+        if len(categorias) > 0:
+            # Si existe, usar la primera encontrada
+            category = categorias[0]
+        else:
+            # Si no existe, crearla
+            category = self.env['res.partner.category'].create({'name': 'Camarero'})
+
+        # Asignar la categoría al contacto
+        self.category_id = [(4, category.id)]

@@ -160,6 +160,10 @@ class tareas_victor(models.Model):
         default=lambda self: self.env.user.id
     )
     
+    desarrollador_ids = fields.Many2one(
+        'res.partner',
+        string="Desarrollador"
+    )
     
     #DEPENDS ******************************************************************************
     #**************************************************************************************
@@ -321,6 +325,21 @@ class desarrolladores_victor(models.Model):
         relation='rel_dev_tec',
         column1='desarrollador_id',
         column2='tecnologia_id',
-         string = 'Tecnologías Dominadas'
+        string = 'Tecnologías Dominadas'
 
     )
+
+    @api.onchange('es_desarrollador')
+    def _onchange_es_desarrollador(self):
+        # Buscar la categoría "Desarrollador"
+        categorias = self.env['res.partner.category'].search([('name', '=', 'Desarrollador')])
+
+        if len(categorias) > 0:
+            # Si existe, usar la primera encontrada
+            category = categorias[0]
+        else:
+            # Si no existe, crearla
+            category = self.env['res.partner.category'].create({'name': 'Desarrollador'})
+
+        # Asignar la categoría al contacto
+        self.category_id = [(4, category.id)]
