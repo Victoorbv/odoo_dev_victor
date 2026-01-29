@@ -109,21 +109,19 @@
       <field name="context">{'default_es_camarero': True}</field>
     </record>
 
-     <record model="ir.actions.act_window.view" id="rest_victor.action_camareros_list">
+    <record model="ir.actions.act_window.view" id="rest_victor.action_camareros_list">
       <field name="sequence" eval="1"/>
       <field name="view_mode">list</field>
       <field name="view_id" ref="base.view_partner_tree"/>
       <field name="act_window_id" ref="rest_victor.action_camareros_window"/>
     </record>
 
-    <record model="ir.actions.act_window.view" id="rest_victor.action_desarrolladores_form">
+    <record model="ir.actions.act_window.view" id="rest_victor.action_camareros_form">
       <field name="sequence" eval="2"/>
       <field name="view_mode">form</field>
       <field name="view_id" ref="rest_victor.view_partner_form_inherit"/>
       <field name="act_window_id" ref="rest_victor.action_camareros_window"/>
     </record>
-
-
 
     <!-- Top menu item -->
     <menuitem name="Gestión de Restaurante" id="rest_victor.menu_root"/>
