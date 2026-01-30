@@ -119,6 +119,12 @@ class platos_victor(models.Model):
         help="Fecha en que el plato fue dado de alta"
     )
 
+    es_caro = fields.Boolean(
+        string="Es Caro",
+        compute="_compute_es_caro",
+        help="Indica si el plato es considerado caro (precio final > 20 euros)"
+    )
+
     # Depends ************************************************************
     #**********************************************************************
     @api.depends('categoria_id')
@@ -168,6 +174,14 @@ class platos_victor(models.Model):
             else:
                 plato.precio_final = plato.precio
 
+    @api.depends('precio_final')
+    def _compute_es_caro(self):
+        for plato in self:
+            if plato.precio_final > 20:
+                plato.es_caro = True
+            else:
+                plato.es_caro = False
+
     #Constrains ***********************************************************
     #**********************************************************************
     @api.constrains('precio')
@@ -178,7 +192,7 @@ class platos_victor(models.Model):
                 raise ValidationError("El precio no puede ser inferior a 0")
             else:
                 _logger.info(f"Precio válido para el plato {plato.id}: {plato.precio}")
-            
+
     @api.constrains('tiempo_preparacion')
     def _verificar_tiempo_preparacion(self):
         for plato in self:
@@ -262,6 +276,12 @@ class menu_victor(models.Model):
         string='Camareros Asignados'
     )
 
+    proximo_vencimiento = fields.Boolean(
+        string="Próximo a Vencer",
+        compute="_compute_proximo_vencimiento",
+        help="Indica si el menú está próximo a vencer (menos de 3 días restantes)"
+    )
+
     # Depends ************************************************************
     #**********************************************************************
     @api.depends('platos','platos.precio_final')
@@ -279,6 +299,16 @@ class menu_victor(models.Model):
                 menu.fecha_fin = menu.fecha_inicio + timedelta(days=menu.dias_disponibles)
             else:
                 menu.fecha_fin = False
+    
+    @api.depends('fecha_fin')
+    def _compute_proximo_vencimiento(self):
+        for menu in self:
+            if menu.fecha_fin:
+                hoy = fields.Date.today()
+                dias_restantes = (menu.fecha_fin - hoy).days
+                menu.proximo_vencimiento = 0 <= dias_restantes < 3
+            else:
+                menu.proximo_vencimiento = False
     #Constrains ***********************************************************
     #**********************************************************************
     @api.constrains('fecha_inicio','fecha_fin')

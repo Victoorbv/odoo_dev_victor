@@ -50,6 +50,23 @@
         </form>
       </field>
     </record>
+
+<!-- VISTA LISTADO DE SPRINTS -->
+    <record model="ir.ui.view" id="gestion_tareas_victor.list_sprints">
+    <field name="name">gestion_tareas_victor.sprints_victor.list</field>
+    <field name="model">gestion_tareas_victor.sprints_victor</field>
+    <field name="arch" type="xml">
+        <list editable="top" decoration-info="activo == True">
+            <field name="name"/>
+            <field name="descripcion"/>
+            <field name="duracion" sum="Total días"/>
+            <field name="fecha_ini"/>
+            <field name="fecha_fin"/>
+            <field name="activo" widget="boolean_favorite"/>
+        </list>
+    </field>
+    </record>
+
     <!-- actions opening views on models -->
 
     <record model="ir.actions.act_window" id="gestion_tareas_victor.action_tareas_window">

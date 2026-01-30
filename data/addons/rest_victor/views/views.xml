@@ -1,44 +1,54 @@
 <odoo>
   <data>
     <!-- explicit list view definition -->
-
+  <!--VISTA DE PLATOS-->
     <record model="ir.ui.view" id="rest_victor.list_platos">
       <field name="name">rest_victor list</field>
       <field name="model">rest_victor.platos_victor</field>
       <field name="arch" type="xml">
-        <list>
-          <field name="codigo"/>
+        <list decoration-muted="not disponible" 
+        decoration-success="descuento"
+        decoration-warning="es_caro">
           <field name="name"/>
-          <field name="descripcion"/>
           <field name="precio"/>
-          <field name="precio_con_iva"/>
-          <field name="precio_final"/>
-          <field name="tiempo_preparacion"/>
+          <field name="precio_final" sum="Total ingresos"/>
           <field name="disponible"/>
-          <field name="categoria_id"/>
-          <field name="fecha_alta"/>
-          <field name="rel_ingredientes" widget="many2many_tags"/>
-          <field name="chef"/>
-          
         </list>
       </field>
     </record>
-
-    <record model="ir.ui.view" id="rest_victor.list_menus">
+      
+    <!--VISTA DE MENUS-->
+    <record model="ir.ui.view" id="rest_victor.list_menu">
       <field name="name">rest_victor list</field>
       <field name="model">rest_victor.menu_victor</field>
       <field name="arch" type="xml">
-        <list>
+        <list decoration-muted="fecha_fin &lt; current_date"
+        decoration-warning="proximo_vencimiento == True" decoration-info="activo">
           <field name="name"/>
+          <field name="fecha_inicio"/>
+          <field name="fecha_fin"/>
+          <field name="activo"/>
+          <field name="precio_total" sum="Total Precios"/>
+        </list>
+      </field>
+    </record>
+
+    <!--VISTA DE INGREDIENTES-->
+      <record model="ir.ui.view" id="rest_victor.list_ingredientes">
+      <field name="name">rest_victor list</field>
+      <field name="model">rest_victor.ingredients_victor</field>
+      <field name="arch" type="xml">
+        <list decoration-danger="es_alergeno == True" editable="top">
+          <field name="name"/>
+          <field name="es_alergeno"/>
           <field name="descripcion"/>
-          <field name="precio_total"/>
-          <field name="platos" widget="many2many_tags"/>
-        
         </list>
       </field>
     </record>
 
 
+
+   
     <!-- actions opening views on models -->
 
     <record model="ir.actions.act_window" id="rest_victor.action_platos_window">
