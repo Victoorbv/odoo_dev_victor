@@ -1,0 +1,153 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!-- 
+    <record model="ir.ui.view" id="dron_vic.list">
+      <field name="name">Dron_vic list</field>
+      <field name="model">dron_vic.usuarios_vic</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="es_cliente"/>
+          <field name="es_vip"/>
+          <field name="es_piloto"/>
+        </list>
+      </field>
+    </record>
+-->
+  <!-- VISTA CLIENTES  -->
+  <record model="ir.ui.view" id="dron_vic.view_partner_form_inherit">
+      <field name="name">Clientes form</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"></field>
+      <field name="mode">primary</field>
+      <field name="arch" type="xml"> 
+        <xpath expr="//sheet/notebook/page[@name='internal_notes']" position="after">
+          <page name="Cliente" 
+          string="Usuario">
+            <group>
+              <field name="es_cliente"/>
+              <field name="es_vip"/>
+              <field name="es_piloto"/>
+              <field name="licencia"/>
+            </group>
+           </page>
+         </xpath>
+      </field>
+    </record>
+
+
+    <record model="ir.actions.act_window" id="dron_vic.action_clientes_window">
+      <field name="name">Clientes</field>
+      <field name="res_model">res.partner</field>
+      <field name="view_mode">list,form</field>
+      <field name="domain">[('es_cliente','=',True)]</field>
+      <field name="context">{'default_es_cliente': True}</field>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="dron_vic.action_clientes_list">
+      <field name="sequence" eval="1"/>
+      <field name="view_mode">list</field>
+      <field name="view_id" ref="base.view_partner_tree"/>
+      <field name="act_window_id" ref="dron_vic.action_clientes_window"/>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="dron_vic.action_clientes_form">
+      <field name="sequence" eval="2"/>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="dron_vic.view_partner_form_inherit"/>
+      <field name="act_window_id" ref="dron_vic.action_clientes_window"/>
+    </record>
+
+<!-- VISTA PILOTOS  -->
+  <record model="ir.ui.view" id="dron_vic.view_partner_form_inherit">
+      <field name="name">Pilotos form</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"></field>
+      <field name="mode">primary</field>
+      <field name="arch" type="xml"> 
+        <xpath expr="//sheet/notebook/page[@name='internal_notes']" position="after">
+          <page name="Pilotos" 
+          string="Pilotos">
+            <group>
+               <field name="es_cliente"/>
+              <field name="es_vip"/>
+              <field name="es_piloto"/>
+              <field name="licencia"/>
+            </group>
+           </page>
+         </xpath>
+      </field>
+    </record>
+
+
+    <record model="ir.actions.act_window" id="dron_vic.action_pilotos_window">
+      <field name="name">Pilotos</field>
+      <field name="res_model">res.partner</field>
+      <field name="view_mode">list,form</field>
+      <field name="domain">[('es_piloto','=',True)]</field>
+      <field name="context">{'default_es_piloto': True}</field>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="dron_vic.action_pilotos_list">
+      <field name="sequence" eval="1"/>
+      <field name="view_mode">list</field>
+      <field name="view_id" ref="base.view_partner_tree"/>
+      <field name="act_window_id" ref="dron_vic.action_pilotos_window"/>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="dron_vic.action_pilotos_form">
+      <field name="sequence" eval="2"/>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="dron_vic.view_partner_form_inherit"/>
+      <field name="act_window_id" ref="dron_vic.action_pilotos_window"/>
+    </record>
+
+
+
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="dron_vic.action_window">
+      <field name="name">Dron_vic window</field>
+      <field name="res_model">res.partner</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- server action to the one above -->
+
+    <record model="ir.actions.server" id="dron_vic.action_server">
+      <field name="name">Dron_vic server</field>
+      <field name="model_id" ref="base.model_res_partner"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "list,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+
+
+    <!-- Top menu item -->
+
+    <menuitem name="Dronify" id="dron_vic.menu_root"/>
+
+    <!-- menu categories -->
+
+    <menuitem name="Clientes" id="dron_vic.menu_1" parent="dron_vic.menu_root" 
+    action="dron_vic.action_clientes_window"/>
+    <menuitem name="Pilotos" id="dron_vic.menu_2" parent="dron_vic.menu_root"
+    action="dron_vic.action_pilotos_window"/>
+
+    <!-- actions -->
+
+    <!-- <menuitem name="List" id="dron_vic.menu_1_list" parent="dron_vic.menu_1"
+              action="dron_vic.action_clientes_window"/>
+    <menuitem name="Server to list" id="dron_vic" parent="dron_vic.menu_2"
+              action="dron_vic.action_server"/> 
+    -->
+
+  </data>
+</odoo>
