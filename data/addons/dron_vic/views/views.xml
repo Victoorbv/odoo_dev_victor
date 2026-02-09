@@ -15,7 +15,7 @@
     </record>
 -->
   <!-- VISTA CLIENTES  -->
-  <record model="ir.ui.view" id="dron_vic.view_partner_form_inherit">
+  <record model="ir.ui.view" id="dron_vic.view_partner_form_clientes_inherit">
       <field name="name">Clientes form</field>
       <field name="model">res.partner</field>
       <field name="inherit_id" ref="base.view_partner_form"></field>
@@ -25,7 +25,7 @@
           <page name="Cliente" 
           string="Usuario">
             <group>
-              <field name="es_cliente"/>
+              <field name="es_cliente" readonly="1"/>
               <field name="es_vip"/>
               <field name="es_piloto"/>
               <field name="licencia"/>
@@ -54,12 +54,12 @@
     <record model="ir.actions.act_window.view" id="dron_vic.action_clientes_form">
       <field name="sequence" eval="2"/>
       <field name="view_mode">form</field>
-      <field name="view_id" ref="dron_vic.view_partner_form_inherit"/>
+      <field name="view_id" ref="dron_vic.view_partner_form_clientes_inherit"/>
       <field name="act_window_id" ref="dron_vic.action_clientes_window"/>
     </record>
 
 <!-- VISTA PILOTOS  -->
-  <record model="ir.ui.view" id="dron_vic.view_partner_form_inherit">
+  <record model="ir.ui.view" id="dron_vic.view_partner_form_pilotos_inherit">
       <field name="name">Pilotos form</field>
       <field name="model">res.partner</field>
       <field name="inherit_id" ref="base.view_partner_form"></field>
@@ -69,9 +69,9 @@
           <page name="Pilotos" 
           string="Pilotos">
             <group>
-               <field name="es_cliente"/>
+              <field name="es_piloto" readonly="1"/>
               <field name="es_vip"/>
-              <field name="es_piloto"/>
+              <field name="es_cliente"/>
               <field name="licencia"/>
             </group>
            </page>
@@ -98,11 +98,32 @@
     <record model="ir.actions.act_window.view" id="dron_vic.action_pilotos_form">
       <field name="sequence" eval="2"/>
       <field name="view_mode">form</field>
-      <field name="view_id" ref="dron_vic.view_partner_form_inherit"/>
+      <field name="view_id" ref="dron_vic.view_partner_form_pilotos_inherit"/>
       <field name="act_window_id" ref="dron_vic.action_pilotos_window"/>
     </record>
 
 
+
+<!-- VISTA DRONES  -->
+  <record model="ir.actions.act_window" id="dron_vic.action_drones_window">
+      <field name="name">Drones</field>
+      <field name="res_model">dron_vic.drones_vic</field>
+      <field name="view_mode">list,form</field>
+  </record>
+
+<!-- VISTA PAQUETES  -->
+ <record model="ir.actions.act_window" id="dron_vic.action_paquetes_window">
+      <field name="name">Paquetes</field>
+      <field name="res_model">dron_vic.paquetes_vic</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+<!-- VISTA VUELOS -->
+<record model="ir.actions.act_window" id="dron_vic.action_vuelos_window">
+      <field name="name">Vuelos</field>
+      <field name="res_model">dron_vic.vuelos_vic</field>
+      <field name="view_mode">list,form</field>
+    </record>
 
 
     <!-- actions opening views on models -->
@@ -136,10 +157,16 @@
 
     <!-- menu categories -->
 
-    <menuitem name="Clientes" id="dron_vic.menu_1" parent="dron_vic.menu_root" 
-    action="dron_vic.action_clientes_window"/>
-    <menuitem name="Pilotos" id="dron_vic.menu_2" parent="dron_vic.menu_root"
+    <menuitem name="Pilotos" id="dron_vic.menu_1" parent="dron_vic.menu_root"
     action="dron_vic.action_pilotos_window"/>
+    <menuitem name="Clientes" id="dron_vic.menu_2" parent="dron_vic.menu_root" 
+    action="dron_vic.action_clientes_window"/>
+    <menuitem name="Drones" id="dron_vic.menu_3" parent="dron_vic.menu_root"
+    action="dron_vic.action_drones_window"/>
+    <menuitem name="Paquetes" id="dron_vic.menu_4" parent="dron_vic.menu_root"
+    action="dron_vic.action_paquetes_window"/>
+    <menuitem name="Vuelos" id="dron_vic.menu_5" parent="dron_vic.menu_root"
+    action="dron_vic.action_vuelos_window"/>
 
     <!-- actions -->
 

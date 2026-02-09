@@ -1,1 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dron_vic_paquetes_vic,dron_vic.paquetes_vic,model_dron_vic_paquetes_vic,base.group_user,1,1,1,1
+acces_dron_vic_drones_vic,dron_vic.drones_vic,model_dron_vic_drones_vic,base.group_user,1,1,1,1
+acces_dron_vic_vuelos_vic,dron_vic.vuelos_vic,model_dron_vic_vuelos_vic,base.group_user,1,1,1,1
