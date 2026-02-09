@@ -13,11 +13,18 @@ Implementación inicial del módulo **Dron_vic** para la gestión de drones.
 
 ### Día 2
 
-Ampliación del módulo creando todos los modelos necesarios para la gestión de drones, paquetes y vuelos sin relaciones entre ellos.
+**Primer commit:**  
+Ampliación del módulo con todos los modelos necesarios para la gestión de drones, paquetes y vuelos, sin relaciones entre ellos.
 
 **Tareas completadas:**
 - Creación de modelos adicionales (Dron, Paquete, Vuelo)
 - Definición de campos y atributos para cada modelo
-- Configuracion de vista default para cada modelo nuevo
+- Configuración de vista por defecto para cada modelo nuevo
 
+**Segundo commit:**  
+Se han creado las relaciones entre los modelos.
 
+**Tareas completadas:**
+- Establecimiento de relaciones entre Vuelo y Dron, Piloto, Paquete
+- Creación de campos computados para calcular los datos necesarios
+- Creación de campos relacionados

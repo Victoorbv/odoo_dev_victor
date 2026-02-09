@@ -1,5 +1,8 @@
 from odoo import models, fields, api
+from .logica_dronify import *
 
+# Modelo USUARIOS****************************************************************
+#********************************************************************************
 class usuarios_vic(models.Model):
     _name = 'res.partner'
     _inherit = 'res.partner'
@@ -19,7 +22,18 @@ class usuarios_vic(models.Model):
     licencia = fields.Char(
         string = "Licencia que tiene el piloto"
     )
+    
+    dron_autorizado_ids = fields.Many2many(
+        comodel_name = 'dron_vic.drones_vic',
+        relation = 'relacion_piloto_dron',
+        column1 = 'piloto_id',
+        column2 = 'dron_id',
+        string = "Drones autorizados para el piloto",
+        help = "Drones que el piloto está autorizado a volar"
+    )
 
+# Modelo DRONES****************************************************************
+#******************************************************************************
 class drones_vic(models.Model):
     _name = 'dron_vic.drones_vic'
     _description = 'Modelo para representar los activos físicos de la empresa y su estado operativo'
@@ -52,7 +66,18 @@ class drones_vic(models.Model):
         help = "Estado operativo del dron"
     )
 
+    piloto_autorizado_ids = fields.Many2many(
+        comodel_name = 'res.partner',
+        relation = 'relacion_dron_piloto',
+        column1 = 'dron_id',
+        column2 = 'piloto_id',
+        string = "Pilotos autorizados para el dron",
+        help = "Pilotos que están autorizados a volar este dron"
+    )
 
+
+# Modelo PAQUETES****************************************************************
+#********************************************************************************
 class paquetes_vic(models.Model):
     _name = 'dron_vic.paquetes_vic'
     _description = 'Modelo para representar los activos físicos de la empresa y su estado operativo'
@@ -76,12 +101,34 @@ class paquetes_vic(models.Model):
         required = True,
         help = "Peso del paquete en kilogramos"
     )
+    # Cliente que envía el paquete, relación con res.partner, solo aquellos que sean clientes
+    cliente_id = fields.Many2one(
+        'res.partner',
+        string = "Enviado por",
+        help = "Cliente que envía el paquete",
+        required = True,
+        domain = [('es_cliente', '=', True)]
+    )
 
+    vuelo_id = fields.Many2one(
+        'dron_vic.vuelos_vic',
+        string = "Vuelo asignado",
+        help = "Vuelo al que está asignado el paquete",
+        readonly = True
+    )
+    
+    dron_relacionado = fields.Char(
+        string = "Nombre del dron",
+        related = 'vuelo_id.dron_id.name',
+        readonly = True
+    )
+# Modelo VUELOS****************************************************************
+#******************************************************************************
 class vuelos_vic(models.Model):
     _name = 'dron_vic.vuelos_vic'
     _description = "Modelo para representar los vuelos realizados por los drones, incluyendo información sobre el piloto, el dron utilizado, el paquete transportado y la fecha del vuelo"
-  
-     # Codigo generado automáticamente para cada vuelo, no se puede modificar, formato YYYYMMDDHHMMSS
+
+    # Codigo generado automáticamente para cada vuelo, no se puede modificar, formato YYYYMMDDHHMMSS
     codigo = fields.Char(
         string = "Identificador único",
         help = "Identificador único que identifica el vuelo",
@@ -98,9 +145,31 @@ class vuelos_vic(models.Model):
         store=True
     )
 
+    dron_id = fields.Many2one(
+        'dron_vic.drones_vic',
+        string = "Dron asignado",
+        help = "Dron asignado para el vuelo",
+        required = True
+    )
+
+    piloto_id = fields.Many2one(
+        'res.partner',
+        string = "Piloto asignado",
+        help = "Piloto asignado para el vuelo",
+        domain = [('es_piloto', '=', True)],
+        required = True
+    )
+    
+    paquetes_ids = fields.One2many(
+        'dron_vic.paquetes_vic',
+        'vuelo_id',
+        string = "Paquetes a transportar",
+        help = "Paquetes que se transportarán en el vuelo"
+    )
+
     preparado = fields.Boolean(
         string = "Está preparado para el vuelo",
-        help = "Indica si el vuelo está preparado para ser realizado",
+        help = "Indica si el vuelo está listo para ejecutarse",
         store=True
     )
 
@@ -109,6 +178,29 @@ class vuelos_vic(models.Model):
         help = "Indica si el vuelo ha sido realizado",
         store=True
     )
+
+    peso_total = fields.Float(
+        string = "Suma del peso de todos los paquetes asignados",
+        compute = '_compute_peso_total',
+        store = True
+    )
+
+    consumo_estimado = fields.Float(
+        string = "Consumo estimado de batería para el vuelo",
+        compute = '_compute_consumo_estimado',
+        store = True
+    )
+
+    @api.depends('paquetes_ids')
+    def _compute_peso_total(self):
+        for vuelo in self:
+            vuelo.peso_total = sum(paquete.peso for paquete in vuelo.paquetes_ids)
+
+    @api.depends('peso_total')
+    def _compute_consumo_estimado(self):
+        for vuelo in self:
+            vuelo.consumo_estimado = calcular_consumo_vuelo(vuelo.peso_total)
+
 
 
 
