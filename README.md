@@ -28,3 +28,9 @@ Se han creado las relaciones entre los modelos.
 - Establecimiento de relaciones entre Vuelo y Dron, Piloto, Paquete
 - Creación de campos computados para calcular los datos necesarios
 - Creación de campos relacionados
+
+### Día 3
+Se han completado todas las vistas falta implementar la logica de funcionamiento y procesos.
+
+**Tareas completadas:**
+- Vistas completadas para todos los modelos: Usuarios (Clientes y Pilotos), Drones, Paquetes y Vuelos

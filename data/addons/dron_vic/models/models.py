@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError, UserError
 from .logica_dronify import *
 
 # Modelo USUARIOS****************************************************************
@@ -72,7 +73,8 @@ class drones_vic(models.Model):
         column1 = 'dron_id',
         column2 = 'piloto_id',
         string = "Pilotos autorizados para el dron",
-        help = "Pilotos que están autorizados a volar este dron"
+        help = "Pilotos que están autorizados a volar este dron",
+        domain = [('es_piloto', '=', True)]
     )
 
 
@@ -133,16 +135,15 @@ class vuelos_vic(models.Model):
         string = "Identificador único",
         help = "Identificador único que identifica el vuelo",
         default = lambda self: fields.Datetime.now().strftime('%Y%m%d%H%M%S'),
-        readonly = True,
-        store=True
+        readonly = True
     ) 
 
     name = fields.Char(
         string = "Denominación de la misión",
         required = True,
         help = "Denominación de la misión o propósito del vuelo",
-        default = lambda self: fields.Datetime.now().strftime('%Y%m%d%') + "_Vuelo",
-        store=True
+        default = lambda self: fields.Datetime.now().strftime('%Y%m%d') + "_Vuelo"
+        
     )
 
     dron_id = fields.Many2one(
@@ -169,14 +170,12 @@ class vuelos_vic(models.Model):
 
     preparado = fields.Boolean(
         string = "Está preparado para el vuelo",
-        help = "Indica si el vuelo está listo para ejecutarse",
-        store=True
+        help = "Indica si el vuelo está listo para ejecutarse"
     )
 
     realizado = fields.Boolean(
         string = "Vuelo realizado",
-        help = "Indica si el vuelo ha sido realizado",
-        store=True
+        help = "Indica si el vuelo ha sido realizado"
     )
 
     peso_total = fields.Float(
@@ -199,7 +198,23 @@ class vuelos_vic(models.Model):
     @api.depends('peso_total')
     def _compute_consumo_estimado(self):
         for vuelo in self:
-            vuelo.consumo_estimado = calcular_consumo_vuelo(vuelo.peso_total)
+            vuelo.consumo_estimado = calcular_consumo_vuelo(vuelo.peso_total, vuelo.piloto_id.es_vip)
+
+    def _validar_preparacion(self):
+        for vuelo in self:
+            raise
+
+    def action_preparar_vuelo(self):
+        for vuelo in self:
+            raise
+
+    def action_desbloquear(self):
+        for vuelo in self:
+            raise
+        
+    def action_finalizar_vuelo(self):
+        for vuelo in self:
+            raise
 
 
 

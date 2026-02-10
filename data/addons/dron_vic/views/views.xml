@@ -1,37 +1,41 @@
 <odoo>
   <data>
-    <!-- explicit list view definition -->
-<!-- 
-    <record model="ir.ui.view" id="dron_vic.list">
-      <field name="name">Dron_vic list</field>
-      <field name="model">dron_vic.usuarios_vic</field>
-      <field name="arch" type="xml">
-        <list>
-          <field name="es_cliente"/>
-          <field name="es_vip"/>
-          <field name="es_piloto"/>
-        </list>
-      </field>
-    </record>
--->
-  <!-- VISTA CLIENTES  -->
+
+<!-- VISTA CLIENTES  -->
+<!-- FORM CLIENTES-->
   <record model="ir.ui.view" id="dron_vic.view_partner_form_clientes_inherit">
       <field name="name">Clientes form</field>
       <field name="model">res.partner</field>
       <field name="inherit_id" ref="base.view_partner_form"></field>
       <field name="mode">primary</field>
       <field name="arch" type="xml"> 
-        <xpath expr="//sheet/notebook/page[@name='internal_notes']" position="after">
-          <page name="Cliente" 
-          string="Usuario">
-            <group>
-              <field name="es_cliente" readonly="1"/>
-              <field name="es_vip"/>
+          <xpath expr="//field[@name='function']" position="attributes">
+          <attribute name="invisible">1</attribute>
+        </xpath>
+        <xpath expr="//field[@name='website']" position="attributes">
+          <attribute name="invisible">1</attribute>
+        </xpath>
+       <xpath expr="//page[@name='contact_addresses']" position="attributes">
+            <attribute name="invisible">1</attribute> 
+        </xpath>
+        <xpath expr="//page[@name='sales_purchases']" position="attributes">
+            <attribute name="invisible">1</attribute> 
+        </xpath>
+        <xpath expr="//page[@name='internal_notes']" position="attributes">
+            <attribute name="invisible">1</attribute> 
+        </xpath>
+        <xpath expr="//sheet" position="inside">
+        <group string="ROLES EN DRONIFY">
+          <group>
+            <field name="es_cliente" readonly="1"/>
+            <field name="es_vip" invisible="not es_cliente"/>
+          </group>
+          <group>
               <field name="es_piloto"/>
-              <field name="licencia"/>
-            </group>
-           </page>
-         </xpath>
+              <field name="licencia" invisible="not es_piloto" required="es_piloto"/>
+          </group>
+        </group> 
+        </xpath> 
       </field>
     </record>
 
@@ -58,24 +62,41 @@
       <field name="act_window_id" ref="dron_vic.action_clientes_window"/>
     </record>
 
-<!-- VISTA PILOTOS  -->
+<!-- VISTA PILOTOS -->
+<!-- FORM PILOTOS -->
   <record model="ir.ui.view" id="dron_vic.view_partner_form_pilotos_inherit">
       <field name="name">Pilotos form</field>
       <field name="model">res.partner</field>
       <field name="inherit_id" ref="base.view_partner_form"></field>
       <field name="mode">primary</field>
       <field name="arch" type="xml"> 
-        <xpath expr="//sheet/notebook/page[@name='internal_notes']" position="after">
-          <page name="Pilotos" 
-          string="Pilotos">
-            <group>
-              <field name="es_piloto" readonly="1"/>
-              <field name="es_vip"/>
-              <field name="es_cliente"/>
-              <field name="licencia"/>
-            </group>
-           </page>
-         </xpath>
+        <xpath expr="//field[@name='function']" position="attributes">
+          <attribute name="invisible">1</attribute>
+        </xpath>
+        <xpath expr="//field[@name='website']" position="attributes">
+          <attribute name="invisible">1</attribute>
+        </xpath>
+       <xpath expr="//page[@name='contact_addresses']" position="attributes">
+            <attribute name="invisible">1</attribute> 
+        </xpath>
+        <xpath expr="//page[@name='sales_purchases']" position="attributes">
+            <attribute name="invisible">1</attribute> 
+        </xpath>
+        <xpath expr="//page[@name='internal_notes']" position="attributes">
+            <attribute name="invisible">1</attribute> 
+        </xpath>
+        <xpath expr="//sheet" position="inside">
+        <group string="ROLES EN DRONIFY">
+          <group>
+            <field name="es_piloto" readonly="1"/>
+            <field name="licencia" required="es_piloto"/>
+          </group>
+          <group>
+            <field name="es_cliente"/>
+            <field name="es_vip" invisible="not es_cliente"/>
+          </group>
+        </group> 
+        </xpath>    
       </field>
     </record>
 
@@ -105,6 +126,20 @@
 
 
 <!-- VISTA DRONES  -->
+<!-- LISTA DRONES -->
+  <record model="ir.ui.view" id="dron_vic.list_drones">
+      <field name="name">Drones Victor list</field>
+      <field name="model">dron_vic.drones_vic</field>
+      <field name="arch" type="xml">
+      <list decoration-danger="bateria &lt; 25">
+          <field name="name"/>
+          <field name="capacidad_max"/>
+          <field name="bateria" widget="progressbar"/>
+          <field name="estado" widget="badge"/>
+        </list>
+      </field>
+  </record>
+
   <record model="ir.actions.act_window" id="dron_vic.action_drones_window">
       <field name="name">Drones</field>
       <field name="res_model">dron_vic.drones_vic</field>
@@ -112,21 +147,93 @@
   </record>
 
 <!-- VISTA PAQUETES  -->
+<!-- LISTA PAQUETES -->
+  <record model="ir.ui.view" id="dron_vic.list_paquetes">
+      <field name="name">Paquetes Victor list</field>
+      <field name="model">dron_vic.paquetes_vic</field>
+      <field name="arch" type="xml">
+      <!-- ¿¿¿¿ HAY QUE QUITAR EL FORMULARIO O DEJARLO DEFAULT ????-->
+      <list>
+          <field name="codigo"/>
+          <field name="name"/>
+          <field name="peso"/>
+          <field name="cliente_id"/>
+          <field name="vuelo_id"/>
+          <field name="dron_relacionado"/>
+        </list>
+      </field>
+  </record>
+
  <record model="ir.actions.act_window" id="dron_vic.action_paquetes_window">
-      <field name="name">Paquetes</field>
-      <field name="res_model">dron_vic.paquetes_vic</field>
-      <field name="view_mode">list,form</field>
-    </record>
+    <field name="name">Paquetes</field>
+    <field name="res_model">dron_vic.paquetes_vic</field>
+    <field name="view_mode">list</field>
+  </record>
 
 <!-- VISTA VUELOS -->
-<record model="ir.actions.act_window" id="dron_vic.action_vuelos_window">
+<!-- LISTA VUELOS -->
+  <record model="ir.ui.view" id="dron_vic.list_vuelos">
+      <field name="name">Vuelos Victor list</field>
+      <field name="model">dron_vic.vuelos_vic</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="codigo"/>
+          <field name="name"/>
+          <field name="dron_id"/>
+          <field name="piloto_id"/>
+          <field name="peso_total"/>
+          <field name="consumo_estimado"/>
+          <field name="preparado" widget="boolean" class="text-center"/>
+          <field name="realizado" widget="boolean" class="text-center"/>
+        </list>
+      </field>
+  </record>
+
+<!-- FORM VUELOS -->
+<record model="ir.ui.view" id="vista_vuelo_form">
+      <field name="name">Vuelos form</field>
+      <field name="model">dron_vic.vuelos_vic</field>
+      <field name="arch" type="xml">
+        <form>
+          <header>
+            <button name="action_preparar_vuelo" string="Preparar Vuelo" type="object" class="oe_highlight" invisible="preparado" />
+            <button name="action_desbloquear" string="Modificar Datos" type="object" invisible="not preparado"/>
+            <button name="action_finalizar_vuelo" string="Marcar como Realizado" type="object" class="oe_highlight" invisible="not preparado" />
+          </header>
+          <sheet>
+            <group>
+              <group string="Planificación">
+                <field name="name" />
+                <field name="dron_id"  />
+                <field name="piloto_id" />
+              </group>
+              <group string="Estado y control">
+                <field name="preparado" readonly="1"/>
+                <field name="realizado" readonly="1"/>
+              </group>
+            </group>
+            <notebook>
+              <page string="Paquetes">
+                <field name="paquetes_ids" readonly="preparado"/>
+                <group>
+                  <group>
+                    <field name="peso_total" /> 
+                    <field name="consumo_estimado" widget="monetary" options="{'symbol': '%'}"/>                  
+                  </group>
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- actions opening views on models -->
+    <record model="ir.actions.act_window" id="dron_vic.action_vuelos_window">
       <field name="name">Vuelos</field>
       <field name="res_model">dron_vic.vuelos_vic</field>
       <field name="view_mode">list,form</field>
     </record>
-
-
-    <!-- actions opening views on models -->
 
     <record model="ir.actions.act_window" id="dron_vic.action_window">
       <field name="name">Dron_vic window</field>
@@ -149,7 +256,6 @@
         }
       </field>
     </record>
-
 
     <!-- Top menu item -->
 
