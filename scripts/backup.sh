@@ -14,14 +14,14 @@ BACKUP_DIR="./data/backups"                 # Directorio de backups en el host
 BACKUP_SQL="${BACKUP_DIR}/${DB_NAME}.sql"   # Ruta completa del archivo SQL de backup
 
 echo "==> Parando Odoo para garantizar consistencia..."
-docker-compose stop "$ODOO_CONTAINER" 2>/dev/null || true
+docker compose stop "$ODOO_CONTAINER" 2>/dev/null || true
 
 mkdir -p "${BACKUP_DIR}"
 
 # Comprobar que el contenedor de Postgres está up
 if ! docker ps --format '{{.Names}}' | grep -q "^${PG_CONTAINER}$"; then
   echo "==> Arrancando Postgres..."
-  docker-compose up -d "$PG_CONTAINER"
+  docker compose up -d "$PG_CONTAINER"
 fi
 
 echo "==> Creando backup lógico (SQL plano) de la BD '${DB_NAME}'..."
