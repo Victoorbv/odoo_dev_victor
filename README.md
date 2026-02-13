@@ -34,3 +34,11 @@ Se han completado todas las vistas falta implementar la logica de funcionamiento
 
 **Tareas completadas:**
 - Vistas completadas para todos los modelos: Usuarios (Clientes y Pilotos), Drones, Paquetes y Vuelos
+
+### Dia 4 
+Se ha completado la logica de funcionamiento y procesos. Se han añadido datos a la base de datos para probar el funcionamiento del módulo.
+
+**Tareas completadas:**
+- Implementación de la lógica de preparación y finalización de vuelos
+- Creación de métodos para las validadciones necesarias
+- Inserción de datos de prueba en la base de datos para validar el funcionamiento del módulo

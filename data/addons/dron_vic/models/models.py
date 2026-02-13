@@ -45,7 +45,7 @@ class drones_vic(models.Model):
         help = "Nombre identificativo del dron"
     )
     capacidad_max = fields.Float(
-        string = "Capacidad máxima en kilogramas",
+        string = "Capacidad máxima",
         required = True,
         help = "Capacidad máxima en kilogramas que el dron puede transportar"
     )
@@ -198,7 +198,8 @@ class vuelos_vic(models.Model):
     @api.depends('peso_total', 'piloto_id')
     def _compute_consumo_estimado(self):
         for vuelo in self:
-            vuelo.consumo_estimado = calcular_consumo_vuelo(vuelo.peso_total, vuelo.piloto_id.es_vip)
+            es_vip = any(vuelo.paquetes_ids.mapped('cliente_id.es_vip'))
+            vuelo.consumo_estimado = calcular_consumo_vuelo(vuelo.peso_total, es_vip)
     
     
     def _verificar_estado_bateria(self):
@@ -225,17 +226,24 @@ class vuelos_vic(models.Model):
 
     def action_preparar_vuelo(self):
         for vuelo in self:
-            vuelo._validar_preparacion()
-            vuelo.dron_id.estado = "en_uso"
             vuelo.preparado = True
+            vuelo.dron_id.estado = "en_uso"
+           
 
     def action_desbloquear(self):
         for vuelo in self:
+           if vuelo.realizado:
+               raise ValidationError("El vuelo ya ha sido realizado")
            vuelo.preparado = False
+           vuelo.dron_id.estado = "disponible"
         
     def action_finalizar_vuelo(self):
         for vuelo in self:
-            raise
+            if not vuelo.preparado:
+               raise ValidationError("El vuelo no ha sido preparado")
+            vuelo.realizado = True
+            vuelo.dron_id.bateria -= vuelo.consumo_estimado
+            vuelo.dron_id.estado = "disponible"
 
 
 

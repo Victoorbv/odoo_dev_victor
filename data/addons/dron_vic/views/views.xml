@@ -132,11 +132,14 @@
       <field name="name">Drones Victor list</field>
       <field name="model">dron_vic.drones_vic</field>
       <field name="arch" type="xml">
-      <list decoration-danger="bateria &lt; 25">
+        <list decoration-danger="bateria &lt; 25">
           <field name="name"/>
           <field name="capacidad_max"/>
           <field name="bateria" widget="progressbar"/>
-          <field name="estado" widget="badge"/>
+          <field name="estado" widget="badge"
+                 decoration-success="estado == 'disponible'"
+                 decoration-warning="estado == 'en_uso'"
+                 decoration-muted="estado == 'mantenimiento'"/>
         </list>
       </field>
   </record>
@@ -153,7 +156,6 @@
       <field name="name">Paquetes Victor list</field>
       <field name="model">dron_vic.paquetes_vic</field>
       <field name="arch" type="xml">
-      <!-- ¿¿¿¿ HAY QUE QUITAR EL FORMULARIO O DEJARLO DEFAULT ????-->
       <list>
           <field name="codigo"/>
           <field name="name"/>
@@ -198,8 +200,8 @@
         <form>
           <header>
             <button name="action_preparar_vuelo" string="Preparar Vuelo" type="object" class="oe_highlight" invisible="preparado" />
-            <button name="action_desbloquear" string="Modificar Datos" type="object" invisible="not preparado"/>
-            <button name="action_finalizar_vuelo" string="Marcar como Realizado" type="object" class="oe_highlight" invisible="not preparado" />
+            <button name="action_desbloquear" string="Modificar Datos" type="object" invisible="not preparado or realizado"/>
+            <button name="action_finalizar_vuelo" string="Marcar como Realizado" type="object" class="oe_highlight" invisible="not preparado or realizado" />
           </header>
           <sheet>
             <group>
