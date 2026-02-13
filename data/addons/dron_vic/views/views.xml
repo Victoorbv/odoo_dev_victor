@@ -90,6 +90,7 @@
           <group>
             <field name="es_piloto" readonly="1"/>
             <field name="licencia" required="es_piloto"/>
+            <field name="dron_autorizado_ids" widget="many2many_tags"/>
           </group>
           <group>
             <field name="es_cliente"/>
@@ -203,9 +204,9 @@
           <sheet>
             <group>
               <group string="Planificación">
-                <field name="name" />
-                <field name="dron_id"  />
-                <field name="piloto_id" />
+                <field name="name" readonly="preparado"/>
+                <field name="dron_id" readonly="preparado"/>
+                <field name="piloto_id" readonly="preparado"/>
               </group>
               <group string="Estado y control">
                 <field name="preparado" readonly="1"/>

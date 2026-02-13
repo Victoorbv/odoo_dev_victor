@@ -29,7 +29,7 @@ class usuarios_vic(models.Model):
         relation = 'relacion_piloto_dron',
         column1 = 'piloto_id',
         column2 = 'dron_id',
-        string = "Drones autorizados para el piloto",
+        string = "Drones Autorizados",
         help = "Drones que el piloto está autorizado a volar"
     )
 
@@ -69,7 +69,7 @@ class drones_vic(models.Model):
 
     piloto_autorizado_ids = fields.Many2many(
         comodel_name = 'res.partner',
-        relation = 'relacion_dron_piloto',
+        relation = 'relacion_piloto_dron',
         column1 = 'dron_id',
         column2 = 'piloto_id',
         string = "Pilotos autorizados para el dron",
@@ -195,22 +195,43 @@ class vuelos_vic(models.Model):
         for vuelo in self:
             vuelo.peso_total = sum(paquete.peso for paquete in vuelo.paquetes_ids)
 
-    @api.depends('peso_total')
+    @api.depends('peso_total', 'piloto_id')
     def _compute_consumo_estimado(self):
         for vuelo in self:
             vuelo.consumo_estimado = calcular_consumo_vuelo(vuelo.peso_total, vuelo.piloto_id.es_vip)
-
+    
+    
+    def _verificar_estado_bateria(self):
+        for vuelo in self:
+            return validar_estado_bateria(vuelo.dron_id.bateria, vuelo.consumo_estimado)
+            
+    @api.constrains('preparado')
     def _validar_preparacion(self):
         for vuelo in self:
-            raise
+            if not vuelo.preparado:
+                break
+            if not vuelo.dron_id or not vuelo.piloto_id:
+                raise ValidationError("El vuelo debe tener dron y piloto asignados.")
+            if not vuelo.paquetes_ids:
+                raise ValidationError("El vuelo debe tener al menos un paquete asignado.")
+            if vuelo.peso_total > vuelo.dron_id.capacidad_max:
+                raise ValidationError(f"El peso total supera la capacidad maxima del dron. Capacidad maxima {vuelo.dron_id.capacidad_max} .")
+            if vuelo.dron_id.estado != 'disponible':
+                raise ValidationError(f"El dron debe estar en estado disponible. Esta en estado {vuelo.dron_id.estado}.")
+            if vuelo.dron_id.bateria < vuelo.consumo_estimado:
+                raise ValidationError(f"La bateria del dron {vuelo.dron_id.bateria}% no es suficiente para el consumo estimado {vuelo.consumo_estimado}%. ")
+            if vuelo.dron_id not in vuelo.piloto_id.dron_autorizado_ids:
+                raise ValidationError("El piloto no tiene el dron asignado en su lista de drones autorizados.")
 
     def action_preparar_vuelo(self):
         for vuelo in self:
-            raise
+            vuelo._validar_preparacion()
+            vuelo.dron_id.estado = "en_uso"
+            vuelo.preparado = True
 
     def action_desbloquear(self):
         for vuelo in self:
-            raise
+           vuelo.preparado = False
         
     def action_finalizar_vuelo(self):
         for vuelo in self:
