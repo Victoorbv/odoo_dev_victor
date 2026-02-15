@@ -2,6 +2,20 @@
   <data>
 
 <!-- VISTA CLIENTES  -->
+<!-- LISTA CLIENTES  -->
+  <record model="ir.ui.view" id="dron_vic.list_clientes">
+      <field name="name">Clientes Victor list</field>
+      <field name="model">res.partner</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="city"/>
+          <field name="es_vip" widget="boolean_toggle"/>
+          <field name="email"/>
+        </list>
+      </field>
+  </record>
+
 <!-- FORM CLIENTES-->
   <record model="ir.ui.view" id="dron_vic.view_partner_form_clientes_inherit">
       <field name="name">Clientes form</field>
@@ -39,7 +53,6 @@
       </field>
     </record>
 
-
     <record model="ir.actions.act_window" id="dron_vic.action_clientes_window">
       <field name="name">Clientes</field>
       <field name="res_model">res.partner</field>
@@ -51,7 +64,7 @@
     <record model="ir.actions.act_window.view" id="dron_vic.action_clientes_list">
       <field name="sequence" eval="1"/>
       <field name="view_mode">list</field>
-      <field name="view_id" ref="base.view_partner_tree"/>
+      <field name="view_id" ref="dron_vic.list_clientes"/>
       <field name="act_window_id" ref="dron_vic.action_clientes_window"/>
     </record>
 
@@ -63,6 +76,19 @@
     </record>
 
 <!-- VISTA PILOTOS -->
+<!-- LISTA PILOTOS -->
+  <record model="ir.ui.view" id="dron_vic.list_pilotos">
+      <field name="name">Pilotos Victor list</field>
+      <field name="model">res.partner</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="licencia"/>
+          <field name="phone"/>
+          <field name="email"/>
+        </list>
+      </field>
+  </record>
 <!-- FORM PILOTOS -->
   <record model="ir.ui.view" id="dron_vic.view_partner_form_pilotos_inherit">
       <field name="name">Pilotos form</field>
@@ -113,7 +139,7 @@
     <record model="ir.actions.act_window.view" id="dron_vic.action_pilotos_list">
       <field name="sequence" eval="1"/>
       <field name="view_mode">list</field>
-      <field name="view_id" ref="base.view_partner_tree"/>
+      <field name="view_id" ref="dron_vic.list_pilotos"/>
       <field name="act_window_id" ref="dron_vic.action_pilotos_window"/>
     </record>
 
@@ -138,8 +164,8 @@
           <field name="bateria" widget="progressbar"/>
           <field name="estado" widget="badge"
                  decoration-success="estado == 'disponible'"
-                 decoration-warning="estado == 'en_uso'"
-                 decoration-muted="estado == 'mantenimiento'"/>
+                 decoration-warning="estado == 'vuelo'"
+                 decoration-muted="estado == 'taller'"/>
         </list>
       </field>
   </record>
@@ -186,8 +212,8 @@
           <field name="piloto_id"/>
           <field name="peso_total"/>
           <field name="consumo_estimado"/>
-          <field name="preparado" widget="boolean" class="text-center"/>
-          <field name="realizado" widget="boolean" class="text-center"/>
+          <field name="preparado" widget="boolean_toggle" class="text-center"/>
+          <field name="realizado" widget="boolean_toggle" class="text-center"/>
         </list>
       </field>
   </record>
@@ -266,16 +292,16 @@
 
     <!-- menu categories -->
 
-    <menuitem name="Pilotos" id="dron_vic.menu_1" parent="dron_vic.menu_root"
-    action="dron_vic.action_pilotos_window"/>
-    <menuitem name="Clientes" id="dron_vic.menu_2" parent="dron_vic.menu_root" 
-    action="dron_vic.action_clientes_window"/>
+    <menuitem name="Registro de Vuelos" id="dron_vic.menu_1" parent="dron_vic.menu_root"
+    action="dron_vic.action_vuelos_window"/>
+    <menuitem name="Paquetes" id="dron_vic.menu_2" parent="dron_vic.menu_root"
+    action="dron_vic.action_paquetes_window"/>
     <menuitem name="Drones" id="dron_vic.menu_3" parent="dron_vic.menu_root"
     action="dron_vic.action_drones_window"/>
-    <menuitem name="Paquetes" id="dron_vic.menu_4" parent="dron_vic.menu_root"
-    action="dron_vic.action_paquetes_window"/>
-    <menuitem name="Vuelos" id="dron_vic.menu_5" parent="dron_vic.menu_root"
-    action="dron_vic.action_vuelos_window"/>
+    <menuitem name="Pilotos" id="dron_vic.menu_4" parent="dron_vic.menu_root"
+    action="dron_vic.action_pilotos_window"/>
+    <menuitem name="Clientes" id="dron_vic.menu_5" parent="dron_vic.menu_root" 
+    action="dron_vic.action_clientes_window"/>
 
     <!-- actions -->
 

@@ -30,15 +30,23 @@ Se han creado las relaciones entre los modelos.
 - Creación de campos relacionados
 
 ### Día 3
-Se han completado todas las vistas falta implementar la logica de funcionamiento y procesos.
+Se han completado todas las vistas falta implementar la lógica de funcionamiento y procesos.
 
 **Tareas completadas:**
 - Vistas completadas para todos los modelos: Usuarios (Clientes y Pilotos), Drones, Paquetes y Vuelos
 
-### Dia 4 
-Se ha completado la logica de funcionamiento y procesos. Se han añadido datos a la base de datos para probar el funcionamiento del módulo.
+### Día 4
+Se ha completado la lógica de funcionamiento y procesos. Se han añadido datos a la base de datos para probar el funcionamiento del módulo.
 
 **Tareas completadas:**
 - Implementación de la lógica de preparación y finalización de vuelos
-- Creación de métodos para las validadciones necesarias
+- Creación de métodos para las validaciones necesarias
 - Inserción de datos de prueba en la base de datos para validar el funcionamiento del módulo
+
+### Día 5 Versión final
+Se han corregido errores, se han mejorado las vistas y se ha añadido la vista de lista de pilotos y clientes.
+
+**Tareas completadas:**
+- Corrección de errores encontrados durante las pruebas
+- Mejora de las vistas
+- Creación de vistas de lista para Clientes y Pilotos
